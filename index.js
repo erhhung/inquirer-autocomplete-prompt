@@ -33,6 +33,7 @@ class AutocompletePrompt extends Base {
     this.selected = 0;
 
     // Make sure no default is set (so it won't be printed)
+    this.default = this.opt.default;
     this.opt.default = null;
 
     this.paginator = new Paginator();
@@ -85,10 +86,12 @@ class AutocompletePrompt extends Base {
     // Render choices or answer depending on the state
     if (this.status === 'answered') {
       content += chalk.cyan(this.shortAnswer || this.answerName || this.answer);
+
     } else if (this.searching) {
       content += this.rl.line;
       bottomContent += '  ' + chalk.dim('Searching...');
-    } else if (this.currentChoices.length) {
+
+    } else if (this.nbChoices) {
       var choicesStr = listRender(this.currentChoices, this.selected);
       content += this.rl.line;
       bottomContent += this.paginator.paginate(
@@ -106,7 +109,6 @@ class AutocompletePrompt extends Base {
     }
 
     this.firstRender = false;
-
     this.screen.render(content, bottomContent);
   }
 
@@ -125,7 +127,7 @@ class AutocompletePrompt extends Base {
     }
 
     var choice = {};
-    if (this.currentChoices.length <= this.selected && !this.opt.suggestOnly) {
+    if (this.nbChoices <= this.selected && !this.opt.suggestOnly) {
       this.rl.write(line);
       this.search(line);
       return;
@@ -137,11 +139,17 @@ class AutocompletePrompt extends Base {
       this.answerName = line || this.rl.line;
       this.shortAnswer = line || this.rl.line;
       this.rl.line = '';
-    } else {
+
+    } else if (this.nbChoices) {
       choice = this.currentChoices.getChoice(this.selected);
       this.answer = choice.value;
       this.answerName = choice.name;
       this.shortAnswer = choice.short;
+
+    } else {
+      this.rl.write(line);
+      this.search(line);
+      return;
     }
 
     runAsync(this.opt.filter, (err, value) => {
@@ -183,20 +191,28 @@ class AutocompletePrompt extends Base {
       // If another search is triggered before the current search finishes, don't set results
       if (thisPromise !== self.lastPromise) return;
 
-      choices = new Choices(
-        choices.filter(function(choice) {
-          return choice.type !== 'separator';
-        })
-      );
+      self.currentChoices = new Choices(choices);
+      self.nbChoices = choices.filter(function(choice) {
+        return choice.type !== 'separator';
+      }).length;
 
-      self.currentChoices = choices;
+      if (self.firstRender) {
+        // If default is a Number, then use as index. Otherwise, check for value.
+        if (typeof self.default === 'number' && self.default >= 0 && self.default < self.nbChoices) {
+          self.selected = self.default;
+
+        } else if (typeof self.default !== 'number' && self.default) {
+          self.selected = choices.pluck('value').indexOf(self.default);
+        }
+      }
+
       self.searching = false;
       self.render();
     });
   }
 
   ensureSelectedInRange() {
-    var selectedIndex = Math.min(this.selected, this.currentChoices.length); // Not above currentChoices length - 1
+    var selectedIndex = Math.min(this.selected, this.nbChoices); // Not above currentChoices length - 1
     this.selected = Math.max(selectedIndex, 0); // Not below 0
   }
 
@@ -216,17 +232,20 @@ class AutocompletePrompt extends Base {
         this.rl.line = autoCompleted;
         this.render();
       }
+
     } else if (keyName === 'down') {
-      len = this.currentChoices.length;
+      len = this.nbChoices;
       this.selected = this.selected < len - 1 ? this.selected + 1 : 0;
       this.ensureSelectedInRange();
       this.render();
       utils.up(this.rl, 2);
+
     } else if (keyName === 'up') {
-      len = this.currentChoices.length;
+      len = this.nbChoices;
       this.selected = this.selected > 0 ? this.selected - 1 : len - 1;
       this.ensureSelectedInRange();
       this.render();
+
     } else {
       this.render(); // Render input automatically
       // Only search if input have actually changed, not because of other keypresses
