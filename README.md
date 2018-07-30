@@ -8,7 +8,7 @@ Autocomplete prompt for [inquirer](https://github.com/SBoudrias/Inquirer.js)
 [![build status](https://secure.travis-ci.org/mokkabonna/inquirer-autocomplete-prompt.svg)](http://travis-ci.org/mokkabonna/inquirer-autocomplete-prompt)
 [![dependency status](https://david-dm.org/mokkabonna/inquirer-autocomplete-prompt.svg)](https://david-dm.org/mokkabonna/inquirer-autocomplete-prompt)
 
-:ledger: This fork combines two PRs ([francoischalifour:feat/allow-separators](/mokkabonna/inquirer-autocomplete-prompt/pull/66) and [dumbmatter:default](/mokkabonna/inquirer-autocomplete-prompt/pull/38)) to fix the inability to add separators and to set a default choice.
+:ledger: This fork combines two PRs ([francoischalifour:feat/allow-separators](https://github.com/mokkabonna/inquirer-autocomplete-prompt/pull/66) and [dumbmatter:default](https://github.com/mokkabonna/inquirer-autocomplete-prompt/pull/38)) to fix the inability to add separators and to set a default choice.
 
 ## Installation
 
