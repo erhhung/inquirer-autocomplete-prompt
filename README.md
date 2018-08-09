@@ -1,6 +1,5 @@
 # inquirer-autocomplete-prompt
 
-
 [![Greenkeeper badge](https://badges.greenkeeper.io/mokkabonna/inquirer-autocomplete-prompt.svg)](https://greenkeeper.io/)
 
 Autocomplete prompt for [inquirer](https://github.com/SBoudrias/Inquirer.js)
@@ -17,7 +16,6 @@ npm install --save inquirer-autocomplete-prompt
 ```
 
 ## Usage
-
 
 This prompt is anonymous, meaning you can register this prompt with the type name you please:
 
@@ -46,7 +44,6 @@ See [inquirer](https://github.com/SBoudrias/Inquirer.js) readme for meaning of a
 **suggestOnly** is default **false**. Setting it to true turns the input into a normal text input. Meaning that pressing enter selects whatever value you currently have. And pressing tab autocompletes the currently selected value in the list. This way you can accept manual input instead of forcing a selection from the list.
 
 **validate** is only active when **suggestOnly** is set to **true**. It behaves like validate for the input prompt.
-
 
 #### Example
 
