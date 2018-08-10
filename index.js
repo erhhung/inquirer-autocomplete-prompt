@@ -5,6 +5,7 @@
  */
 
 var ansiEscapes = require('ansi-escapes');
+var cliCursor = require('cli-cursor');
 var chalk = require('chalk');
 var figures = require('figures');
 var Base = require('inquirer/lib/prompts/base');
@@ -64,6 +65,7 @@ class AutocompletePrompt extends Base {
 
     // Call once at init
     this.search(undefined);
+    cliCursor.hide();
 
     return this;
   }
@@ -79,9 +81,9 @@ class AutocompletePrompt extends Base {
 
     if (this.firstRender) {
       var suggestText = this.opt.suggestOnly ? ', tab to autocomplete' : '';
-      content += chalk.dim(
+      content += chalk.italic( chalk.dim(
         '(Use arrow keys or type to search' + suggestText + ')'
-      );
+      ));
     }
     // Render choices or answer depending on the state
     if (this.status === 'answered') {
@@ -89,11 +91,17 @@ class AutocompletePrompt extends Base {
 
     } else if (this.searching) {
       content += this.rl.line;
+      if (!this.firstRender) {
+        content += chalk.dim('\u2588');
+      }
       bottomContent += '  ' + chalk.dim('Searching...');
 
     } else if (this.nbChoices) {
       var choicesStr = listRender(this.currentChoices, this.selected);
       content += this.rl.line;
+      if (!this.firstRender) {
+        content += chalk.dim('\u2588');
+      }
       bottomContent += this.paginator.paginate(
         choicesStr,
         this.selected,
@@ -101,6 +109,9 @@ class AutocompletePrompt extends Base {
       );
     } else {
       content += this.rl.line;
+      if (!this.firstRender) {
+        content += chalk.dim('\u2588');
+      }
       bottomContent += '  ' + chalk.yellow('No results...');
     }
 
@@ -163,7 +174,9 @@ class AutocompletePrompt extends Base {
       this.status = 'answered';
       // Rerender prompt
       this.render();
+
       this.screen.done();
+      cliCursor.show();
       this.done(choice.value);
     })(choice.value);
   }
